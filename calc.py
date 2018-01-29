@@ -1,4 +1,4 @@
-#!/opt/bb/bin/python
+#!/usr/bin/python
 import sys
 
 class Val(object):
@@ -21,52 +21,57 @@ class Val(object):
 class Op(object):
     op = None
 
+    # operator -> calculation , priority
     oper = {
-        '*' : lambda x,y : x*y,
+        '*' : [lambda x,y : Val(x*y), 2],
+        '+' : [lambda x,y : Val(x+y),1],
+        '-' : [lambda x,y : Val(x-y),1],
+        '/' : [lambda x,y : Val(x/y),3],
     }
 
     def __init__(self, _op):
         self.op = _op
 
+    # precedence
+    def isGreater(self, rhs):
+        return Op.oper[self.op][1] > Op.oper[rhs.op][1]
+
     def eval(self, rhs, lhs):
         print "eval op ",self.op
-        return self.oper[self.op](rhs.eval(), lhs.eval())
+        return Op.oper[self.op][0](rhs.eval(), lhs.eval())
 
 class Expr(object):
-    list = []
-    def parse(self,exprs):
-        for token in exprs:
+
+    @staticmethod
+    def eval(exprs):
+        print "eval ", exprs
+        lastLowestOp = None
+        lastLowestOpLocation = -1
+
+        if len(exprs) == 1:
+            token = exprs[0]
+            assert(Val.is_number(token))
+            return Val(token)
+
+        for i,token in enumerate(exprs):
             print "token ",token
-            if token in ['*','+','-']:
-                self.list.extend([Op(token)])
-            elif Val.is_number(token):
-                self.list.extend([Val(token)])
+            if token in Op.oper.keys():
+                op = Op(token)
 
-    def eval(self):
-        result = 0
-        operands = []
-        operators = []
+                if lastLowestOp is None:
+                    lastLowestOp = op
+                    lastLowestOpLocation = i
+                elif lastLowestOp.isGreater(op): # op < lastLowestOp
+                    lastLowestOp = op
+                    lastLowestOpLocation = i
 
-        for t in self.list:
-            print "t: ",type(t)
-            if type(t) is Val:
-                operands.extend([t])
-            elif type(t) is Op:
-                operators.extend([t])
+        assert(lastLowestOpLocation != -1)
+        lhs = Expr.eval(exprs[:lastLowestOpLocation])
+        rhs = Expr.eval(exprs[lastLowestOpLocation+1:])
 
-        while len(operators) != 0:
-            rhs = operands.pop()
-            lhs = operands.pop()
-            e = operators.pop().eval(rhs,lhs)
-            operands.extend([Val(e)])
-
-        assert(len(operators) == 0)
-        assert(len(operands) == 1)
-        return operands.pop().val
+        return lastLowestOp.eval(lhs, rhs)
 
 if __name__ == "__main__":
     exprs = sys.argv[1];
-    print exprs
-    expr = Expr()
-    expr.parse(exprs)
-    print expr.eval()
+
+    print Expr.eval(exprs).eval()
