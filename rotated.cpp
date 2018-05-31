@@ -35,6 +35,33 @@ int bs(vector<int> &v, int t)
     return -1;
 }
 
+int pivot(vector<int> &v)
+{
+    size_t N(v.size());
+    size_t l(0), r(N-1);
+
+    if (v[l] < v[r] || N == 1) // no rotation
+        return -1;
+
+    while (l <= r)
+    {
+        size_t m = l +((r-l)/2);
+
+        cout << "l " << l << " r " << r << " m " << m << endl;
+        assert(l >= 0);
+        assert(r < N);
+        assert( 0 <= m && m < N);
+
+        if (v[m] > v[m+1]) return m;
+
+        if (v[m] > v[0] )
+            l = m+1;
+        else
+            r = m-1;
+    }
+    return -1;
+}
+
 int main(int argc, char*argv[])
 {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -80,6 +107,24 @@ int main(int argc, char*argv[])
         cout << "log2 " << log2(n) << endl;
     }
 
-        cout << t << " via std bs" << binary_search(v.begin(), v.end(), t);
+    cout << t << " via std bs" << binary_search(v.begin(), v.end(), t);
 
+    int r = generator()%(n-1);
+    cout << "rotation by " << r << "\n";
+    std::rotate(v.begin(), v.begin() + r, v.end());
+    j = 0;
+    for (const int i: v)
+        cout << i << "[" << j++ << "]" << ' ';
+    cout << endl;
+
+    int p = pivot(v);
+    cout << "pivot at " << p << endl;
+
+    bool b;
+    if (t < v[0])
+        b = binary_search(v.begin()+p, v.end(), t);
+    else
+        b = binary_search(v.begin(), v.begin()+p, t);
+
+    cout << "search result " << b << endl;
 }
