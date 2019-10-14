@@ -1,0 +1,2 @@
+useful compile flags
+ g++ -O -g -fsanitize=address heap-use-after-free.cc
