@@ -1,4 +1,49 @@
 //https://www.geeksforgeeks.org/minimum-number-swaps-required-sort-array/
+
+// Complete the abbreviation function below.
+string abbreviation(string a, string b) {
+    std::unordered_set<char> as, bs;
+    int aN = a.size();
+    int bN = b.size();
+    int ai(0),bi(0);
+
+    bool ret(true);
+    while (ai < aN && bi < bN){
+
+        for (char ca = a[ai];
+         ai < aN && islower(ca); as.insert(ca), ++ai); 
+        
+        for (char cb = b[bi];
+         bi < bN && islower(cb); bs.insert(cb), ++bi); 
+
+        if (ai == aN || bi == bN) break;
+
+        char ca = a[ai];
+        char cb = b[bi];
+
+        if (tolower(ca) == tolower(cb)) {
+            as.clear(); bs.clear();
+            continue;
+        }
+
+        if (bs.find(tolower(ca)) == bs.end()){
+            ret = false;
+            break;
+        }
+        if (as.find(tolower(cb)) == as.end()){
+            ret = false;
+            break;
+        }
+        as.clear(); bs.clear();
+    }
+    for (;ai < aN && islower(ai);++ai);
+    for (;bi < bN && islower(bi);++bi);
+
+    if (ai < aN || bi < bN) ret = false;
+
+    return ret ? "YES" : "NO";
+}
+//-------
 #include <bits/stdc++.h>
 
 using namespace std;
