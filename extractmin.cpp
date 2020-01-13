@@ -1,4 +1,4 @@
-// https://bbgithub.dev.bloomberg.com/interview-questions/coding-questions/tree/master/ExtractMinFromStack
+//extract min
 #include <bits/stdc++.h>
 using namespace std;
 
